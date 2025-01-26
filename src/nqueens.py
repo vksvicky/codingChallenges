@@ -18,6 +18,27 @@ class NQueens:
                 board_row = '.' * n
             board.append(board_row)
         return board
+
+    def is_valid_solution(self, board):
+        n = len(board)
+        queens = []
+        
+        # Extract queen positions
+        for i, row in enumerate(board):
+            queens.append(row.index('Q'))
+            
+        # Check each queen against others
+        for i in range(n):
+            for j in range(i + 1, n):
+                # Check same column
+                if queens[i] == queens[j]:
+                    return False
+                    
+                # Check diagonals
+                if abs(queens[i] - queens[j]) == abs(i - j):
+                    return False
+                    
+        return True
         
     def solve(self, n):
         if n <= 0:

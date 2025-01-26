@@ -13,13 +13,18 @@ class TestDijkstra(unittest.TestCase):
         self.assertEqual(self.graph.shortest_path('A', 'B'), (4, ['A', 'B']))
 
     def test_complex_path(self):
-        self.graph.add_edge('A', 'B', 4)
-        self.graph.add_edge('A', 'C', 2)
-        self.graph.add_edge('B', 'D', 3)
-        self.graph.add_edge('C', 'D', 1)
-        self.graph.add_edge('C', 'B', 1)
+        graph = Graph()
+        # Create a more complex graph with multiple possible paths
+        graph.add_edge('A', 'B', 4)
+        graph.add_edge('A', 'C', 2)
+        graph.add_edge('B', 'D', 3)
+        graph.add_edge('C', 'D', 1)
+        graph.add_edge('C', 'E', 5)
+        graph.add_edge('D', 'E', 2)
         
-        self.assertEqual(self.graph.shortest_path('A', 'D'), (3, ['A', 'C', 'D']))
+        distance, path = graph.shortest_path('A', 'E')
+        self.assertEqual(path, ['A', 'C', 'D', 'E'])
+        self.assertEqual(distance, 5)  # A->C(2) + C->D(1) + D->E(2) = 5
 
     def test_no_path(self):
         self.graph.add_edge('A', 'B', 4)

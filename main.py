@@ -7,6 +7,7 @@ from src.roman import RomanConverter
 from src.nqueens import NQueens
 from src.string_reversal import StringReversal
 from src.perfect_square import PerfectSquare
+from src.fizzbuzz import FizzBuzz
 
 def run_palindrome():
     checker = PalindromeChecker()
@@ -157,6 +158,23 @@ def run_hex_converter():
         except ValueError:
             print("Please enter a valid integer")
 
+def run_fizzbuzz():
+    while True:
+        try:
+            n = int(input("Enter a positive number for FizzBuzz sequence: "))
+            if n <= 0:
+                print("Please enter a positive number")
+                continue
+            
+            fizzbuzz = FizzBuzz()
+            result = fizzbuzz.generate(n)
+            print("\nFizzBuzz sequence:")
+            print(", ".join(result))
+            fizzbuzz.visualize(n)
+            break
+        except ValueError:
+            print("Please enter a valid number")
+
 def main():
     while True:
         print("\nAlgorithm Visualizer")
@@ -168,11 +186,12 @@ def main():
         print("6. N-Queens Puzzle")
         print("7. String Reversal")
         print("8. Perfect Square")
-        print("9. Exit")
+        print("9. FizzBuzz")
+        print("10. Exit")
         
-        choice = input("\nSelect an option (1-9): ").strip()
+        choice = input("\nSelect an option (1-10): ").strip()
         
-        if choice == '9':
+        if choice == '10':
             print("Goodbye!")
             break
             
@@ -233,6 +252,9 @@ def main():
 
         elif choice == '8':
             run_perfect_square()
+
+        elif choice == '9':
+            run_fizzbuzz()
                     
         else:
             print("Invalid option. Please select 1-10")
