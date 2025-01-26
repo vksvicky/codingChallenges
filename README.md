@@ -323,46 +323,45 @@ python main.py
 2. Select an algorithm from the menu (1-9):
 
 ```
-
 Algorithm Visualizer
+	
+	1. Pascal's Triangle
 
-1. Pascal's Triangle
+	2. Dijkstra's Algorithm
 
-2. Dijkstra's Algorithm
+	3. Tower of Hanoi
 
-3. Tower of Hanoi
+	4. Palindrome Checker
 
-4. Palindrome Checker
+	5. Roman Numerals
 
-5. Roman Numerals
+	6. N-Queens Puzzle
 
-6. N-Queens Puzzle
+	7. String Reversal
 
-7. String Reversal
+	8. Perfect Square
 
-8. Perfect Square
-
-9. Exit
-
+	9. Exit
 ```
 
 3. Follow the prompts to input parameters:
+```
+	- Pascal's Triangle: Enter size (rows)
 
-- Pascal's Triangle: Enter size (rows)
+	- Dijkstra's Algorithm: Enter number of nodes
 
-- Dijkstra's Algorithm: Enter number of nodes
+	- Tower of Hanoi: Enter number of disks and animation delay
 
-- Tower of Hanoi: Enter number of disks and animation delay
+	- Palindrome Checker: Enter text to check
 
-- Palindrome Checker: Enter text to check
+	- Roman Numerals: Choose conversion type and enter number/numeral
 
-- Roman Numerals: Choose conversion type and enter number/numeral
+	- N-Queens: Enter board size
 
-- N-Queens: Enter board size
+	- String Reversal: Enter text to reverse
 
-- String Reversal: Enter text to reverse
-
-- Perfect Square: Enter number to check
+	- Perfect Square: Enter number to check
+```
 
 ## Algorithm Details
 
