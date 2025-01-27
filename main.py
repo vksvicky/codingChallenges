@@ -8,6 +8,8 @@ from src.nqueens import NQueens
 from src.string_reversal import StringReversal
 from src.perfect_square import PerfectSquare
 from src.fizzbuzz import FizzBuzz
+from src.sudoku import Sudoku
+
 
 def run_palindrome():
     checker = PalindromeChecker()
@@ -175,6 +177,57 @@ def run_fizzbuzz():
         except ValueError:
             print("Please enter a valid number")
 
+def run_sudoku():
+    solver = Sudoku()
+    print("\nSudoku Solver")
+    print("1. Use GUI")
+    print("2. Use Array Input")
+    choice = input("Select input method (1-2): ").strip()
+    
+    if choice == "1":
+        solver.create_gui()
+    elif choice == "2":
+        # Example board
+        example = [
+            ["5","3",".",".","7",".",".",".","."],
+            ["6",".",".","1","9","5",".",".","."],
+            [".","9","8",".",".",".",".","6","."],
+            ["8",".",".",".","6",".",".",".","3"],
+            ["4",".",".","8",".","3",".",".","1"],
+            ["7",".",".",".","2",".",".",".","6"],
+            [".","6",".",".",".",".","2","8","."],
+            [".",".",".","4","1","9",".",".","5"],
+            [".",".",".",".","8",".",".","7","9"]
+        ]
+        print("\nExample board format:")
+        for row in example:
+            print(row)
+        
+        try:
+            board_str = input("\nEnter your Sudoku board (or press Enter for example): ").strip()
+            if board_str:
+                # Convert string input to proper 2D list format
+                board = eval(board_str)
+                # Validate board format
+                if not isinstance(board, list) or len(board) != 9 or \
+                   not all(isinstance(row, list) and len(row) == 9 for row in board) or \
+                   not all(isinstance(val, str) and (val == "." or val.isdigit()) for row in board for val in row):
+                    raise ValueError("Invalid board format")
+            else:
+                board = example
+            
+            solver.create_gui()
+            solver.load_array_to_gui(board)  # First load the board
+            solver.solve_from_gui()  # Then solve it
+            
+        except (ValueError, SyntaxError) as e:
+            print(f"Invalid board format. Using example board... Error: {e}")
+            solver.create_gui()
+            solver.load_array_to_gui(example)  # First load the board
+            solver.solve_from_gui()  # Then solve it
+    else:
+        print("Invalid choice")
+
 def main():
     while True:
         print("\nAlgorithm Visualizer")
@@ -187,14 +240,11 @@ def main():
         print("7. String Reversal")
         print("8. Perfect Square")
         print("9. FizzBuzz")
-        print("10. Exit")
+        print("10. Sudoku")
+        print("11. Exit")
         
-        choice = input("\nSelect an option (1-10): ").strip()
+        choice = input("\nSelect an option (1-11): ").strip()
         
-        if choice == '10':
-            print("Goodbye!")
-            break
-            
         if choice == '1':
             while True:
                 try:
@@ -255,9 +305,25 @@ def main():
 
         elif choice == '9':
             run_fizzbuzz()
-                    
+
+        elif choice == '10':
+            run_sudoku()
+
+        elif choice == '11':
+            print("Goodbye!")
+            break
+            
         else:
-            print("Invalid option. Please select 1-10")
+            print("Invalid option. Please select 1-11")
+            
+    # except KeyboardInterrupt:
+    #     print("\nGoodbye!")
+    #     sys.exit(0)
+    # except Exception as e:
+    #     print(f"\nAn error occurred: {e}")
+    #     continue
+
+        
 
 if __name__ == "__main__":
     main()
