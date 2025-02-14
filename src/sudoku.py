@@ -7,9 +7,18 @@ import time
 import sys
 
 class Sudoku:
-    def __init__(self):
-        self.app = QApplication(sys.argv)
-        self.window = None
+    def __init__(self, test_mode=False):
+        self.test_mode = test_mode
+        if not test_mode:
+            # Check if QApplication instance already exists
+            if not QApplication.instance():
+                self.app = QApplication(sys.argv)
+            else:
+                self.app = QApplication.instance()
+            self.window = None
+        else:
+            self.app = None
+            self.window = None
         self.cells = []
         self.delay = 0.05
         self.solving = False
@@ -104,17 +113,18 @@ class Sudoku:
         if not self.solving:
             return None
             
-        # Update statistics in window title
+        # Update statistics in window title only if not in test mode
         current_time = time.time() - self.start_time
         empty_cells = sum(row.count('.') for row in board)
         cells_filled = self.initial_empty_cells - empty_cells
         
-        title_text = (
-            f"Sudoku Solver | Time: {current_time:.2f}s | "
-            f"Filled: {cells_filled}/{self.initial_empty_cells}"
-        )
-        self.window.setWindowTitle(title_text)
-        QApplication.processEvents()
+        if not self.test_mode and self.window:
+            title_text = (
+                f"Sudoku Solver | Time: {current_time:.2f}s | "
+                f"Filled: {cells_filled}/{self.initial_empty_cells}"
+            )
+            self.window.setWindowTitle(title_text)
+            QApplication.processEvents()
         
         cell = self.find_most_constrained_cell(board)
         if not cell:
@@ -124,14 +134,13 @@ class Sudoku:
         possible = self.get_possible_values(row, col)
         
         for num in possible:
-            self.solve_attempts += 1  # Increment attempts counter
+            self.solve_attempts += 1
             if self.is_safe_to_place(board, row, col, num):
-                # Place number and update constraints
                 board[row][col] = str(num)
                 self.update_constraints(row, col, num, add=True)
                 
-                # Update GUI
-                if hasattr(self, 'cells') and self.cells:
+                # Update GUI only if not in test mode
+                if not self.test_mode and hasattr(self, 'cells') and self.cells:
                     self.cells[row][col].setText(str(num))
                     self.cells[row][col].setStyleSheet("""
                         QLineEdit {
@@ -147,13 +156,12 @@ class Sudoku:
                 if self._solve(board):
                     return board
                     
-                # Backtrack and remove constraints
-                self.backtrack_count += 1  # Increment backtrack counter
+                self.backtrack_count += 1
                 board[row][col] = "."
                 self.update_constraints(row, col, num, add=False)
                 
-                # Update GUI for backtracking
-                if hasattr(self, 'cells') and self.cells:
+                # Update GUI for backtracking only if not in test mode
+                if not self.test_mode and hasattr(self, 'cells') and self.cells:
                     self.cells[row][col].setText("")
                     self.cells[row][col].setStyleSheet("""
                         QLineEdit {
@@ -259,10 +267,32 @@ class Sudoku:
                 print("|")
             print("-" * 25)
             
-            self.load_example(board)  # Load the board into GUI first
+            if not self.test_mode:
+                # Initialize GUI before solving
+                if not self.window:
+                    self.create_gui()
+                # Clear and load the initial board
+                self.clear_board()
+                for i in range(9):
+                    for j in range(9):
+                        if initial_state[i][j] != ".":
+                            self.cells[i][j].setText(initial_state[i][j])
+                            self.cells[i][j].setStyleSheet("""
+                                QLineEdit {
+                                    font-size: 20px;
+                                    background-color: white;
+                                    border: 1px solid gray;
+                                    color: black;
+                                }
+                            """)
+                QApplication.processEvents()
+            
+            # Solve the board
             solution = self.solve(board)
             if solution:
-                self.visualize(solution, initial_state)
+                if not self.test_mode:
+                    self.display_solution(solution, initial_state)
+                    self.visualize(solution, initial_state)
                 return solution
             else:
                 print("No solution exists!")
@@ -327,113 +357,115 @@ class Sudoku:
                 
     #     return False
 
-    def load_example(self, custom_board=None):
-        # Create GUI if it doesn't exist
-        if not self.window:
-            self.create_gui()
+    # def load_example(self, custom_board=None):
+    #     # Create GUI if it doesn't exist
+    #     if not self.window:
+    #         self.create_gui()
         
-        # Initialize default example board
-        example = [
-            ["5","3",".",".","7",".",".",".","."],
-            ["6",".",".","1","9","5",".",".","."],
-            [".","9","8",".",".",".",".","6","."],
-            ["8",".",".",".","6",".",".",".","3"],
-            ["4",".",".","8",".","3",".",".","1"],
-            ["7",".",".",".","2",".",".",".","6"],
-            [".","6",".",".",".",".","2","8","."],
-            [".",".",".","4","1","9",".",".","5"],
-            [".",".",".",".","8",".",".","7","9"]
-        ]
+    #     # Initialize default example board
+    #     example = [
+    #         ["5","3",".",".","7",".",".",".","."],
+    #         ["6",".",".","1","9","5",".",".","."],
+    #         [".","9","8",".",".",".",".","6","."],
+    #         ["8",".",".",".","6",".",".",".","3"],
+    #         ["4",".",".","8",".","3",".",".","1"],
+    #         ["7",".",".",".","2",".",".",".","6"],
+    #         [".","6",".",".",".",".","2","8","."],
+    #         [".",".",".","4","1","9",".",".","5"],
+    #         [".",".",".",".","8",".",".","7","9"]
+    #     ]
         
-        board_to_use = example
+    #     board_to_use = example
         
-        # Handle custom board if provided
-        if custom_board is not None:
-            try:
-                # Handle boolean input by converting to empty board
-                if isinstance(custom_board, bool):
-                    board = [["."] * 9 for _ in range(9)]
-                else:
-                    # Convert rows to lists if needed
-                    board = []
-                    for row in custom_board:
-                        board_row = []
-                        for cell in row:
-                            # Convert cell to string and handle zeros
-                            cell_str = str(cell)
-                            board_row.append("." if cell_str == "0" or cell_str == "" else cell_str)
-                        board.append(board_row)
+    #     # Handle custom board if provided
+    #     if custom_board is not None:
+    #         try:
+    #             # Handle boolean input by converting to empty board
+    #             if isinstance(custom_board, bool):
+    #                 board = [["."] * 9 for _ in range(9)]
+    #             else:
+    #                 # Convert rows to lists if needed
+    #                 board = []
+    #                 for row in custom_board:
+    #                     board_row = []
+    #                     for cell in row:
+    #                         # Convert cell to string and handle zeros
+    #                         cell_str = str(cell)
+    #                         board_row.append("." if cell_str == "0" or cell_str == "" else cell_str)
+    #                     board.append(board_row)
                 
-                # Validate board dimensions
-                if len(board) != 9 or any(len(row) != 9 for row in board):
-                    raise ValueError("Board must be 9x9")
+    #             # Validate board dimensions
+    #             if len(board) != 9 or any(len(row) != 9 for row in board):
+    #                 raise ValueError("Board must be 9x9")
                 
-                # Validate cell contents
-                for row in board:
-                    for cell in row:
-                        if not (cell == "." or (cell.isdigit() and 1 <= int(cell) <= 9)):
-                            raise ValueError(f"Invalid cell value: {cell}")
+    #             # Validate cell contents
+    #             for row in board:
+    #                 for cell in row:
+    #                     if not (cell == "." or (cell.isdigit() and 1 <= int(cell) <= 9)):
+    #                         raise ValueError(f"Invalid cell value: {cell}")
                 
-                # Update GUI with custom board
-                self.clear_board()
-                for i in range(9):
-                    for j in range(9):
-                        if board[i][j] != ".":
-                            self.cells[i][j].setText(board[i][j])
-                            self.cells[i][j].setStyleSheet("""
-                                QLineEdit {
-                                    font-size: 20px;
-                                    background-color: white;
-                                    border: 1px solid gray;
-                                    color: black;
-                                }
-                            """)
+    #             # Update GUI with custom board
+    #             self.clear_board()
+    #             for i in range(9):
+    #                 for j in range(9):
+    #                     if board[i][j] != ".":
+    #                         self.cells[i][j].setText(board[i][j])
+    #                         self.cells[i][j].setStyleSheet("""
+    #                             QLineEdit {
+    #                                 font-size: 20px;
+    #                                 background-color: white;
+    #                                 border: 1px solid gray;
+    #                                 color: black;
+    #                             }
+    #                         """)
                 
-                # Print the board in 9x9 format
-                print("\nLoaded Sudoku Board:")
-                print("-" * 25)
-                for i in range(9):
-                    if i % 3 == 0 and i != 0:
-                        print("-" * 25)
-                    for j in range(9):
-                        if j % 3 == 0:
-                            print("|", end=" ")
-                        print(board[i][j], end=" ")
-                    print("|")
-                print("-" * 25)
+    #             # Print the board in 9x9 format
+    #             print("\nLoaded Sudoku Board:")
+    #             print("-" * 25)
+    #             for i in range(9):
+    #                 if i % 3 == 0 and i != 0:
+    #                     print("-" * 25)
+    #                 for j in range(9):
+    #                     if j % 3 == 0:
+    #                         print("|", end=" ")
+    #                     print(board[i][j], end=" ")
+    #                 print("|")
+    #             print("-" * 25)
                 
-                return board
+    #             return board
                 
-            except Exception as e:
-                print(f"Error loading custom board: {e}")
+    #         except Exception as e:
+    #             print(f"Error loading custom board: {e}")
         
-        # Load default example if no custom board or if custom board failed
-        example = [
-            ["5","3",".",".","7",".",".",".","."],
-            ["6",".",".","1","9","5",".",".","."],
-            [".","9","8",".",".",".",".","6","."],
-            ["8",".",".",".","6",".",".",".","3"],
-            ["4",".",".","8",".","3",".",".","1"],
-            ["7",".",".",".","2",".",".",".","6"],
-            [".","6",".",".",".",".","2","8","."],
-            [".",".",".","4","1","9",".",".","5"],
-            [".",".",".",".","8",".",".","7","9"]
-        ]
+    #     # Load default example if no custom board or if custom board failed
+    #     example = [
+    #         ["5","3",".",".","7",".",".",".","."],
+    #         ["6",".",".","1","9","5",".",".","."],
+    #         [".","9","8",".",".",".",".","6","."],
+    #         ["8",".",".",".","6",".",".",".","3"],
+    #         ["4",".",".","8",".","3",".",".","1"],
+    #         ["7",".",".",".","2",".",".",".","6"],
+    #         [".","6",".",".",".",".","2","8","."],
+    #         [".",".",".","4","1","9",".",".","5"],
+    #         [".",".",".",".","8",".",".","7","9"]
+    #     ]
         
-        # Clear and update GUI with example
-        self.clear_board()
-        for i in range(9):
-            for j in range(9):
-                if example[i][j] != ".":
-                    self.cells[i][j].setText(example[i][j])
-                    self.cells[i][j].setStyleSheet("""
-                        QLineEdit {
-                            font-size: 20px;
-                            background-color: white;
-                            border: 1px solid gray;
-                            color: black;
-                        }
-                    """)
+    #     # Clear and update GUI with example
+    #     self.clear_board()
+    #     for i in range(9):
+    #         for j in range(9):
+    #             if example[i][j] != ".":
+    #                 self.cells[i][j].setText(example[i][j])
+    #                 self.cells[i][j].setStyleSheet("""
+    #                     QLineEdit {
+    #                         font-size: 20px;
+    #                         background-color: white;
+    #                         border: 1px solid gray;
+    #                         color: black !important;
+    #                     }
+    #                 """)
+        
+    #     return example
 
     def clear_board(self):
         """Clear all cells in the GUI"""
@@ -677,6 +709,8 @@ class Sudoku:
                                 font-size: 20px;
                                 background-color: white;
                                 border: 1px solid gray;
+                                color: black;
+                                font-weight: bold;
                             }
                         """)
                         
@@ -714,15 +748,15 @@ class Sudoku:
         clear_button.clicked.connect(self.clear_board)
         clear_button.setFixedSize(100, 40)
         
-        example_button = QPushButton("Load Example")
-        example_button.clicked.connect(self.load_example)
-        example_button.setFixedSize(100, 40)
+        # example_button = QPushButton("Load Example")
+        # example_button.clicked.connect(self.load_example)
+        # example_button.setFixedSize(100, 40)
         
         button_layout.addWidget(solve_button, 0, 0)
         button_layout.addWidget(stop_button, 0, 1)
         button_layout.addWidget(check_button, 0, 2)
         button_layout.addWidget(clear_button, 0, 3)
-        button_layout.addWidget(example_button, 0, 4)
+        # button_layout.addWidget(example_button, 0, 4)
         
         main_layout.addWidget(button_widget, 3, 0, 1, 3)
         
@@ -757,6 +791,8 @@ class Sudoku:
             QMessageBox.warning(self.window, "Invalid", "Solution is incorrect!")
 
     if __name__ == "__main__":
-        sudoku = Sudoku()
         # Start the event loop after creating the instance
-        sudoku.app.exec()
+        app = QApplication(sys.argv)
+        sudoku = Sudoku()
+        sudoku.create_gui()
+        sys.exit(app.exec())

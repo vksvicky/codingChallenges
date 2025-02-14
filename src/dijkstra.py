@@ -62,37 +62,28 @@ class Graph:
                     distances[neighbor] = distance
                     previous[neighbor] = current
 
+        # Check if end is reachable
+        if distances.get(end, float('inf')) == float('inf'):
+            return float('inf'), []
+
+        # Construct path only if end is reachable
         path = []
         current = end
-        while current and current in previous:
+        while current is not None:
             path.insert(0, current)
-            current = previous[current]
+            current = previous.get(current)
         
-        if path and path[0] != start:
-            return float('inf'), []
-        
-        if path:
-            path.insert(0, start)
-
         return distances.get(end, float('inf')), path
 
     def visualize(self, start=None, end=None, path=None):
         plt.figure(figsize=(12, 6))  # Slightly wider figure
-        pos = nx.spring_layout(self._nx_graph, k=1.5)  # Increased spacing
         
-        # Add complexity information
-        complexity_text = (
-            "Dijkstra's Algorithm Complexity:\n"
-            f"Time: O(V² + E)\n"
-            f"Space: O(V)\n\n"
-            f"V (vertices): {len(self._nx_graph.nodes)}\n"
-            f"E (edges): {len(self._nx_graph.edges)}\n\n"
-            f"Start Node: {start}\n"
-            f"End Node: {end}"
-        )
-        plt.figtext(0.85, 0.5, complexity_text, fontsize=10,
-                    bbox=dict(facecolor='lightyellow', alpha=0.8),
-                    verticalalignment='center')
+        # Create a gridspec to manage layout
+        gs = plt.GridSpec(1, 2, width_ratios=[3, 1])
+        
+        # Create main plot for graph
+        plt.subplot(gs[0])
+        pos = nx.spring_layout(self._nx_graph, k=1.5)  # Increased spacing
         
         # Draw nodes
         nx.draw_networkx_nodes(self._nx_graph, pos, node_color='lightblue', 
@@ -117,7 +108,24 @@ class Graph:
             
         # Draw edge labels with both edge number and weight
         nx.draw_networkx_edge_labels(self._nx_graph, pos, edge_labels)
-        
         plt.title("Dijkstra's Algorithm Visualization")
         plt.axis('off')
+        
+        # Create subplot for complexity information
+        plt.subplot(gs[1])
+        complexity_text = (
+            "Dijkstra's Algorithm Complexity:\n\n"
+            f"Time: O(V² + E)\n"
+            f"Space: O(V)\n\n"
+            f"V (vertices): {len(self._nx_graph.nodes)}\n"
+            f"E (edges): {len(self._nx_graph.edges)}\n\n"
+            f"Start Node: {start}\n"
+            f"End Node: {end}"
+        )
+        plt.text(0.1, 0.5, complexity_text, fontsize=10,
+                bbox=dict(facecolor='lightyellow', alpha=0.8),
+                verticalalignment='center')
+        plt.axis('off')
+        
+        plt.tight_layout()
         plt.show()

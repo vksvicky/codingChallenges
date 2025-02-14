@@ -1,4 +1,6 @@
 import sys
+import threading
+import time
 from src.pascal_triangle import PascalTriangle
 from src.dijkstra import Graph
 from src.hanoi import TowerOfHanoi
@@ -9,6 +11,9 @@ from src.string_reversal import StringReversal
 from src.perfect_square import PerfectSquare
 from src.fizzbuzz import FizzBuzz
 from src.sudoku import Sudoku
+from src.rubiks_cube import RubiksCube
+from src.santa_gui import run_santa_gui  # Uncomment this line
+from src.minesweeper import MinesweeperSolver
 
 
 def run_palindrome():
@@ -177,6 +182,11 @@ def run_fizzbuzz():
         except ValueError:
             print("Please enter a valid number")
 
+def run_rubiksCube():
+    cube = RubiksCube()
+    # The RubiksCube class handles its own GUI and event loop
+    cube.app.exec()
+
 def run_sudoku():
     solver = Sudoku()
     print("\nSudoku Solver")
@@ -228,102 +238,164 @@ def run_sudoku():
     else:
         print("Invalid choice")
 
+def run_santa():
+    run_santa_gui()  # Use the GUI version directly
+
+# Update the main menu options and function
 def main():
     while True:
-        print("\nAlgorithm Visualizer")
-        print("1. Pascal's Triangle")
-        print("2. Dijkstra's Algorithm")
-        print("3. Tower of Hanoi")
-        print("4. Palindrome Checker")
-        print("5. Roman Numerals")
-        print("6. N-Queens Puzzle")
-        print("7. String Reversal")
-        print("8. Perfect Square")
-        print("9. FizzBuzz")
-        print("10. Sudoku")
-        print("11. Exit")
-        
-        choice = input("\nSelect an option (1-11): ").strip()
-        
-        if choice == '1':
-            while True:
-                try:
-                    size = int(input("Enter the size of Pascal's Triangle (default=5): ") or "5")
-                    if size <= 0:
-                        print("Please provide a positive number")
-                        continue
-                    run_pascal_triangle(size)
-                    break
-                except ValueError:
-                    print("Please enter a valid number")
-                    
-        elif choice == '2':
-            while True:
-                try:
-                    num_nodes = int(input("Enter number of nodes (1-10, default=5): ") or "5")
-                    if num_nodes < 1:
-                        print("Please provide a positive number of nodes")
-                        continue
-                    if num_nodes > 10:
-                        print("Maximum 10 nodes supported in this example")
-                        num_nodes = 10
-                    run_dijkstra()
-                    break
-                except ValueError:
-                    print("Please enter a valid number")
-                    
-        elif choice == '3':
-            while True:
-                try:
-                    disks = int(input("Enter number of disks (default=3): ") or "3")
-                    delay = float(input("Enter animation delay in seconds (default=0.5): ") or "0.5")
-                    if disks <= 0:
-                        print("Please provide a positive number of disks")
-                        continue
-                    run_hanoi(disks, delay)
-                    break
-                except ValueError:
-                    print("Please enter valid numbers")
-                    
-        elif choice == '4':
-            run_palindrome()
-                    
-        elif choice == '5':
-            run_roman()
-
-        elif choice == '6':
-            run_nqueens()
-        
-        elif choice == '7':
-            run_string_reversal() 
+        try:
+            print("\nAlgorithm Visualizer")
+            print("1. Pascal's Triangle")
+            print("2. Dijkstra's Algorithm")
+            print("3. Tower of Hanoi")
+            print("4. Palindrome Checker")
+            print("5. Roman Numerals")
+            print("6. N-Queens Puzzle")
+            print("7. String Reversal")
+            print("8. Perfect Square")
+            print("9. FizzBuzz")
+            print("10. Sudoku")
+            print("11. Rubik's Cube")
+            print("12. Santa's Workshop")
+            print("13. Minesweeper")
+            print("14. Exit")
             
-        elif choice == '8':
-            run_perfect_square()
+            choice = input("Select an option (1-14): ")
+            
+            if choice == '1':
+                while True:
+                    try:
+                        size = int(input("Enter the size of Pascal's Triangle (default=5): ") or "5")
+                        if size <= 0:
+                            print("Please provide a positive number")
+                            continue
+                        run_pascal_triangle(size)
+                        break
+                    except ValueError:
+                        print("Please enter a valid number")
+                        
+            elif choice == '2':
+                while True:
+                    try:
+                        num_nodes = int(input("Enter number of nodes (1-10, default=5): ") or "5")
+                        if num_nodes < 1:
+                            print("Please provide a positive number of nodes")
+                            continue
+                        if num_nodes > 10:
+                            print("Maximum 10 nodes supported in this example")
+                            num_nodes = 10
+                        run_dijkstra()
+                        break
+                    except ValueError:
+                        print("Please enter a valid number")
+                        
+            elif choice == '3':
+                while True:
+                    try:
+                        disks = int(input("Enter number of disks (default=3): ") or "3")
+                        delay = float(input("Enter animation delay in seconds (default=0.5): ") or "0.5")
+                        if disks <= 0:
+                            print("Please provide a positive number of disks")
+                            continue
+                        run_hanoi(disks, delay)
+                        break
+                    except ValueError:
+                        print("Please enter valid numbers")
+                        
+            elif choice == '4':
+                run_palindrome()
+                        
+            elif choice == '5':
+                run_roman()
 
-        elif choice == '8':
-            run_perfect_square()
+            elif choice == '6':
+                run_nqueens()
+            
+            elif choice == '7':
+                run_string_reversal() 
+                
+            elif choice == '8':
+                run_perfect_square()
 
-        elif choice == '9':
-            run_fizzbuzz()
+            elif choice == '8':
+                run_perfect_square()
 
-        elif choice == '10':
-            run_sudoku()
+            elif choice == '9':
+                run_fizzbuzz()
 
-        elif choice == '11':
-            print("Goodbye!")
+            elif choice == '10':
+                run_sudoku()
+
+            elif choice == '11':
+                run_rubiksCube()
+
+            elif choice == '12':
+                run_santa()  # Call run_santa() instead of run_santa_gui() directly
+
+            elif choice == '13':
+                print("\nMinesweeper Solver")
+                print("1. Try Example 1 (Click on empty square)")
+                print("2. Try Example 2 (Click on mine)")
+                print("3. Custom board")
+                
+                sub_choice = input("Select an option (1-3): ")
+                
+                # Remove this line as we'll initialize solver with board later
+                # solver = MinesweeperSolver()
+                
+                if sub_choice == "1":
+                    board = [["E","E","E","E","E"],
+                            ["E","E","M","E","E"],
+                            ["E","E","E","E","E"],
+                            ["E","E","E","E","E"]]
+                    click = [3, 0]
+                elif sub_choice == "2":
+                    board = [["B","1","E","1","B"],
+                            ["B","1","M","1","B"],
+                            ["B","1","1","1","B"],
+                            ["B","B","B","B","B"]]
+                    click = [1, 2]
+                else:
+                    rows = int(input("Enter number of rows: "))
+                    cols = int(input("Enter number of columns: "))
+                    board = [["E" for _ in range(cols)] for _ in range(rows)]
+                    
+                    mines = int(input("Enter number of mines: "))
+                    import random
+                    for _ in range(mines):
+                        r = random.randint(0, rows-1)
+                        c = random.randint(0, cols-1)
+                        board[r][c] = "M"
+                    
+                    print("Enter click position:")
+                    click_r = int(input("Row (0-based): "))
+                    click_c = int(input("Column (0-based): "))
+                    click = [click_r, click_c]
+            
+                print("\nInitial board:")
+                solver = MinesweeperSolver(board)  # Initialize with board
+                solver.visualize(board, "Initial Board")
+                
+                result = solver.click(click[0], click[1])
+                print("\nAfter revealing position", click)
+                solver.visualize(result, "After Reveal")
+                
+                input("\nPress Enter to continue...")
+
+            elif choice == '14':
+                break
+
+            else:
+                print("Invalid option. Please select 1-13")
+
+        except ValueError:
+            print("Invalid input. Please enter a number between 1 and 13.")
+        except KeyboardInterrupt:
+            print("\nExiting...")
             break
-            
-        else:
-            print("Invalid option. Please select 1-11")
-            
-    # except KeyboardInterrupt:
-    #     print("\nGoodbye!")
-    #     sys.exit(0)
-    # except Exception as e:
-    #     print(f"\nAn error occurred: {e}")
-    #     continue
-
-        
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
