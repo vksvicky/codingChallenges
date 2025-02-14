@@ -30,15 +30,11 @@ An interactive Python application that visualizes various algorithms, mathematic
 
 # Clone the repository
 
-    ```
     git clone https://github.com/vksvicky/codingChallenges.git
-    ```
 
 # Install dependencies
 
-    ```
     pip install PyQt6 matplotlib numpy
-    ```
 
 ## Usage
 
@@ -50,7 +46,9 @@ An interactive Python application that visualizes various algorithms, mathematic
 
 2. Select an algorithm from the menu (1-14):
 
-```Algorithm Visualizer
+```
+Algorithm Visualizer
+
 1. Pascal's Triangle
 2. Dijkstra's Algorithm
 3. Tower of Hanoi
@@ -98,6 +96,7 @@ To run individual test files:
    python tests/test_dijkstra.py
    ...
    ```
+   
 To view test coverate
    ```
    coverage run -m unittest discover tests
