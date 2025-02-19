@@ -32,6 +32,14 @@ An interactive Python application that visualizes various algorithms, mathematic
 
     git clone https://github.com/vksvicky/codingChallenges.git
 
+# Setup environment
+```
+
+python3 -m venv .venv
+
+source .venv/bin/activate
+```
+
 # Install dependencies
 
     pip install PyQt6 matplotlib numpy
@@ -127,6 +135,20 @@ To view test coverate
    git push origin feature/new-algorithm
    ```
 6. Submit a Pull Request
+
+# Visualisation
+
+## Menu Options
+
+![Pascal Triangle](images/02.%20Pascal%20Triangle.png)
+
+### Example 01
+
+![Sudoku](images/03.%20Sudoku.gif)
+
+### Example 02
+
+![Rubik's Cube](images/04.%20Rubik's%20Cube.gif)
 
 ### Contribution Guidelines
 
